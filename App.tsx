@@ -49,15 +49,19 @@ export default function App() {
 
       <Button title="Sök" onPress={searchCities} />
 
+<Text style={styles.resultCount}>
+  Hittade {results.length} städer
+</Text>
+
       <FlatList
         style={{ marginTop: 20, width: "100%" }}
         data={results}
         keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <Text style={styles.city}>
-            {item.name} - {item.temp}°C
-          </Text>
-        )}
+       renderItem={({ item }) => (
+  <Text style={styles.city}>
+    {item.name}, {item.country} - {item.temp}°C
+  </Text>
+)}
       />
     </View>
   );
@@ -89,4 +93,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     color: "#000000",
   },
+  resultCount: {
+  marginTop: 20,
+  marginBottom: 10,
+  fontSize: 16,
+  fontWeight: "600",
+},
 });
