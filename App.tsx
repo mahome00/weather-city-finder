@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cities } from "./src/data/cities";
 import {
   View,
   Text,
@@ -8,14 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 
-const cities = [
-  { name: "Stockholm", temp: 18 },
-  { name: "Barcelona", temp: 24 },
-  { name: "Rom", temp: 23 },
-  { name: "Aten", temp: 25 },
-  { name: "Lissabon", temp: 22 },
-  { name: "Oslo", temp: 15 },
-];
+
 
 export default function App() {
   const [minTemp, setMinTemp] = useState("");
