@@ -16,16 +16,26 @@ export default function App() {
   const [maxTemp, setMaxTemp] = useState("");
   const [results, setResults] = useState(cities);
 
-  const searchCities = () => {
-    const min = Number(minTemp);
-    const max = Number(maxTemp);
+ const searchCities = () => {
+  const min = Number(minTemp);
+  const max = Number(maxTemp);
 
-    const filtered = cities.filter(
-      (city) => city.temp >= min && city.temp <= max
-    );
+  if (isNaN(min) || isNaN(max)) {
+    alert("Ange giltiga temperaturer");
+    return;
+  }
 
-    setResults(filtered);
-  };
+  if (min > max) {
+    alert("Min temperatur kan inte vara högre än max temperatur");
+    return;
+  }
+
+  const filtered = cities.filter(
+    (city) => city.temp >= min && city.temp <= max
+  );
+
+  setResults(filtered);
+};
 
   return (
     <View style={styles.container}>
