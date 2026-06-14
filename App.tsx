@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cities } from "./src/data/cities";
 import { getCurrentWeather } from "./src/services/weatherApi";
+import { getHistoricalWeather } from "./src/services/historyWeatherApi";
 import { searchCity } from "./src/services/geocodingApi";
 import {
   View,
@@ -14,6 +15,9 @@ import {
 
 
 export default function App() {
+  const [selectedDate, setSelectedDate] = useState("");
+
+const [historicalWeather, setHistoricalWeather] = useState<any>(null);
   const [minTemp, setMinTemp] = useState("");
   const [maxTemp, setMaxTemp] = useState("");
   const [temperature, setTemperature] = useState<number | null>(null);
@@ -44,24 +48,26 @@ const [cityResult, setCityResult] = useState<any>(null);
   setResults(filtered);
 };
 
+
 const handleCitySearch = async () => {
   try {
-    const result = await searchCity(cityName);
+    const city = await searchCity(cityName);
 
-    setCityResult(result);
+    setCityResult(city);
 
-    const temp = await getCurrentWeather(
-      result.latitude,
-      result.longitude
+    const weather = await getHistoricalWeather(
+      city.latitude,
+      city.longitude,
+      selectedDate
     );
 
-    setTemperature(temp);
+    setHistoricalWeather(weather);
 
   } catch (error) {
     console.error(error);
     alert("Kunde inte hämta väderdata");
   }
-}; 
+};
 
 
   return (
@@ -73,6 +79,12 @@ const handleCitySearch = async () => {
   placeholder="Skriv stad"
   value={cityName}
   onChangeText={setCityName}
+/>
+<TextInput
+  style={styles.input}
+  placeholder="Datum (YYYY-MM-DD)"
+  value={selectedDate}
+  onChangeText={setSelectedDate}
 />
 
 <Button
@@ -88,6 +100,24 @@ const handleCitySearch = async () => {
     <Text>Lon: {cityResult.longitude}</Text>
   </View>
   
+)}
+
+{historicalWeather && (
+  <View style={{ marginTop: 20 }}>
+    <Text>Historiskt väder</Text>
+
+    <Text>
+      Max temperatur: {historicalWeather.max}°C
+    </Text>
+
+    <Text>
+      Medel temperatur: {historicalWeather.mean}°C
+    </Text>
+
+    <Text>
+      Min temperatur: {historicalWeather.min}°C
+    </Text>
+  </View>
 )}
 
 {temperature !== null && (
