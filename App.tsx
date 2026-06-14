@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { cities } from "./src/data/cities";
+import { getCurrentWeather } from "./src/services/weatherApi";
+import { searchCity } from "./src/services/geocodingApi";
 import {
   View,
   Text,
@@ -14,7 +16,10 @@ import {
 export default function App() {
   const [minTemp, setMinTemp] = useState("");
   const [maxTemp, setMaxTemp] = useState("");
+  const [temperature, setTemperature] = useState<number | null>(null);
   const [results, setResults] = useState(cities);
+  const [cityName, setCityName] = useState("");
+const [cityResult, setCityResult] = useState<any>(null);
 
  const searchCities = () => {
   const min = Number(minTemp);
@@ -30,6 +35,8 @@ export default function App() {
     return;
   }
 
+ 
+
   const filtered = cities.filter(
     (city) => city.temp >= min && city.temp <= max
   );
@@ -37,42 +44,60 @@ export default function App() {
   setResults(filtered);
 };
 
+const handleCitySearch = async () => {
+  try {
+    const result = await searchCity(cityName);
+
+    setCityResult(result);
+
+    const temp = await getCurrentWeather(
+      result.latitude,
+      result.longitude
+    );
+
+    setTemperature(temp);
+
+  } catch (error) {
+    console.error(error);
+    alert("Kunde inte hämta väderdata");
+  }
+}; 
+
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Weather City Finder</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Min temperatur"
-        keyboardType="numeric"
-        value={minTemp}
-        onChangeText={setMinTemp}
-      />
+     <TextInput
+  style={styles.input}
+  placeholder="Skriv stad"
+  value={cityName}
+  onChangeText={setCityName}
+/>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Max temperatur"
-        keyboardType="numeric"
-        value={maxTemp}
-        onChangeText={setMaxTemp}
-      />
+<Button
+  title="Hitta stad"
+  onPress={handleCitySearch}
+/>
 
-      <Button title="Sök" onPress={searchCities} />
+     {cityResult && (
+  <View style={{ marginTop: 20 }}>
+    <Text>{cityResult.name}</Text>
+    <Text>{cityResult.country}</Text>
+    <Text>Lat: {cityResult.latitude}</Text>
+    <Text>Lon: {cityResult.longitude}</Text>
+  </View>
+  
+)}
 
-<Text style={styles.resultCount}>
-  Hittade {results.length} städer
-</Text>
-
-      <FlatList
-        style={{ marginTop: 20, width: "100%" }}
-        data={results}
-        keyExtractor={(item) => item.name}
-       renderItem={({ item }) => (
-  <Text style={styles.city}>
-    {item.name}, {item.country} - {item.temp}°C
+{temperature !== null && (
+  <Text>
+    Temperatur just nu: {temperature}°C
   </Text>
 )}
-      />
+
+
+      
     </View>
   );
 }
