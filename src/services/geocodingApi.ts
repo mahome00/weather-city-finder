@@ -1,18 +1,40 @@
-export async function searchCity(cityName: string) {
-  try {
-    const response = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${cityName}&count=1&language=en&format=json`
-    );
+export type GeoCity = {
+  id: number;
+  name: string;
+  country: string;
+  admin1?: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+};
 
-    console.log("Status:", response.status);
+type GeocodingResponse = {
+  results?: GeoCity[];
+};
 
-    const data = await response.json();
+export async function searchCities(cityName: string): Promise<GeoCity[]> {
+  const query = cityName.trim();
 
-    console.log("Data:", data);
-
-    return data.results?.[0];
-  } catch (error) {
-    console.error("API ERROR:", error);
-    throw error;
+  if (query.length < 2) {
+    return [];
   }
+
+  const params = new URLSearchParams({
+    name: query,
+    count: "6",
+    language: "en",
+    format: "json",
+  });
+
+  const response = await fetch(
+    `https://geocoding-api.open-meteo.com/v1/search?${params.toString()}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`City search failed with status ${response.status}`);
+  }
+
+  const data = (await response.json()) as GeocodingResponse;
+
+  return data.results ?? [];
 }
